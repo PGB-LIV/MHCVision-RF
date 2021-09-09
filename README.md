@@ -46,3 +46,9 @@ options:
 -o, --output   Optional: specify the output filename 
 -h, --help     Print the usage information
 ```
+
+### **Sample scripts**
+You can use sample.csv as the input file
+```
+python mhcvision-rf.py -a HLA-A1101 -t NetMHCpan -i sample.csv
+```
