@@ -72,7 +72,7 @@ def convert_aa_to_num(pep_seq):
 
 
 def blast_search(pep,num_aln):
-    db = 'blast_db/homo_sapien'
+    db = 'MHCVision-RF/BLAST_db/homo_sapien'
     f = open('pep.txt','wt')
     f.write('>'+pep+'\n')
     f.write(pep+'\n')
