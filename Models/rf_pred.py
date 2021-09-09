@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
 import pickle
-import immunogenic_prediction_model.mhcvision_rf_210909.peptide_label_feat
+import Models.peptide_label_feat
 
 
 def load_model():
-    model = pickle.load(open('../final_model.sav', 'rb'))
+    model = pickle.load(open('../Immune_RF_Model.sav', 'rb'))
     return model
 
 
@@ -38,7 +38,7 @@ def make_prediction(df_matrix):
 
 
 def immune_pred():
-    df_matrix = immunogenic_prediction_model.mhcvision_rf_210909.peptide_label_feat.generate_matrix('peptide.txt')
+    df_matrix = Models.peptide_label_feat.generate_matrix('peptide.txt')
     make_prediction(df_matrix)
     return
 
