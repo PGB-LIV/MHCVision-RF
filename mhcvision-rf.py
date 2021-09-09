@@ -2,7 +2,7 @@
 import os
 import sys
 import pandas as pd
-import immunogenic_prediction_model.mhcvision_rf_210909.mhcvision_pred
+import MHCVision-RF.Models.mhcvision_pred
 
 argv = sys.argv
 path = 'support_data/'
@@ -119,7 +119,7 @@ def run_models(allele, prediction_tool, input_file):
     with open('peptide.txt', 'wt') as fpep:
         for i in range(len(peptides)):
             fpep.write(peptides[i]+'\n')
-    immunogenic_prediction_model.mhcvision_rf_210909.rf_pred.immune_pred()  ## return peptide and immune prob
+    MHCVision-RF.Models.rf_pred.immune_pred()  ## return peptide and immune prob
     """
     run MHCVision
     """
@@ -132,12 +132,12 @@ def run_models(allele, prediction_tool, input_file):
         b2_range = list(df_parameter_range.iloc[y,3:])
         values = a2_range+b2_range
         hla_parameter_range[hla_list[y]] = values
-    data = immunogenic_prediction_model.mhcvision_rf_210909.mhcvision_pred.convert_score_for_beta(input_file)  # converted IC50
+    data = MHCVision-RF.Models.mhcvision_pred.convert_score_for_beta(input_file)  # converted IC50
     print('The parameter estimation is running...')
-    model = immunogenic_prediction_model.mhcvision_rf_210909.mhcvision_pred.BMM(data, allele, hla_parameter_range, input_file,)
+    model = MHCVision-RF.Models.mhcvision_pred.BMM(data, allele, hla_parameter_range, input_file,)
     model.initialisation()
     model.termination()
-    est_fdr = immunogenic_prediction_model.mhcvision_rf_210909.mhcvision_pred.FDR('beta_parameter.csv', data, allele, input_file)
+    est_fdr = MHCVision-RF.Models.mhcvision_pred.FDR('beta_parameter.csv', data, allele, input_file)
     print('The FDR/PEP are calculating...')
     est_fdr.write_output()  ## return peptides and statistic values
     # warn users if the estimation goes to all true or all false
@@ -151,34 +151,36 @@ def run_models(allele, prediction_tool, input_file):
                 fwarning.write('Note: The input data is estimated to all binding peptides.\n')
             else:
                 fwarning.write('Note: The input data is estimated to all non-binding peptides.\n')
-    os.remove('beta_parameter_' + input_file)
+    os.remove('beta_parameter.csv')
     return
 
 
-def write_final_prob():
-    # check for -h/--help argument
-    if '-h' in argv or '--help' in argv or check_valid_argument(argv) == True:
-        print_help_()
-
-    # if everything has been checked out, run the models
+"""
+run models and calculate a final probability
+"""
+# check for -h/--help argument
+if '-h' in argv or '--help' in argv or check_valid_argument(argv) == True:
+    print_help_()
+# if everything has been checked out, run the models
+else:
+    # extract all arguments
+    allele, prediction_tool, input_file, output_file = extract_required_arg(argv)
+    # check input argument values
+    if check_input_arg(allele, prediction_tool, input_file) == True:
+         print_help_()
+    # if all argument values are correct, make the estimation
     else:
-        # extract all arguments
-        allele, prediction_tool, input_file, output_file = extract_required_arg(argv)
-        # check input argument values
-        if check_input_arg(allele, prediction_tool, input_file) == True:
-            print_help_()
-        # if all argument values are correct, make the estimation
-        else:
-            run_models(allele, prediction_tool, input_file)
+        run_models(allele, prediction_tool, input_file)
 
-        # calculate final probability
-        immune_pred = pd.read_csv('Immune_pred.csv').sort_values(by='Peptide')
-        fdr_pred = pd.read_csv('FDR_pred.csv').sort_values(by='Peptide')
-        immune_prob = immune_pred.loc[:, 'Immunogenic probability']
-        true_binding_prob = fdr_pred.loc[:, 'True probability (1-PEP)']
-        final_prob = immune_prob*true_binding_prob
-        fdr_pred['Final probability'] = final_prob
-        # write final output
-        fdr_pred.to_csv(output_file)
-        print('Done! Wrote output to ' + output_file)
-        return
+    # calculate final probability
+    immune_pred = pd.read_csv('Immune_pred.csv').sort_values(by='Peptide')
+    fdr_pred = pd.read_csv('FDR_pred.csv').sort_values(by='Peptide')
+    immune_prob = immune_pred.loc[:, 'Immunogenic probability']
+    true_binding_prob = fdr_pred.loc[:, 'True probability (1-PEP)']
+    final_prob = immune_prob*true_binding_prob
+    fdr_pred['Final probability'] = final_prob
+    # write final output
+    fdr_pred.to_csv(output_file)
+    os.remove('Immune_pred.csv')
+    os.remove('FDR_pred.csv')
+    print('Done! Wrote output to ' + output_file)
