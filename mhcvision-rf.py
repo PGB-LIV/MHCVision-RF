@@ -116,7 +116,7 @@ def run_models(allele, prediction_tool, input_file):
     """
     df_input = pd.read_csv(input_file)
     peptides = df_input.loc[:,'Peptide']
-    with open('peptide.txt', 'wt') as fpep:
+    with open('peptide.txt', 'wt') as fpep: # create an input file for rf_pred.py
         for i in range(len(peptides)):
             fpep.write(peptides[i]+'\n')
     MHCVision-RF.Models.rf_pred.immune_pred()  ## return peptide and immune prob
@@ -151,7 +151,6 @@ def run_models(allele, prediction_tool, input_file):
                 fwarning.write('Note: The input data is estimated to all binding peptides.\n')
             else:
                 fwarning.write('Note: The input data is estimated to all non-binding peptides.\n')
-    os.remove('beta_parameter.csv')
     return
 
 
@@ -181,6 +180,9 @@ else:
     fdr_pred['Final probability'] = final_prob
     # write final output
     fdr_pred.to_csv(output_file)
+    # delete all intermediate files
+    os.remove('beta_parameter.csv')
+    os.remove('peptide.txt')
     os.remove('Immune_pred.csv')
     os.remove('FDR_pred.csv')
     print('Done! Wrote output to ' + output_file)
