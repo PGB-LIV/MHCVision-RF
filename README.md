@@ -31,6 +31,11 @@ pip install setuptools
 ```
 For more information, please see [here](https://packaging.python.org/tutorials/installing-packages/#install-pip-setuptools-and-wheel)
 
+3.  Run Setup.py inside MHCVision directory to install the model
+```
+cd MHCVision-RF
+python Setup.py install
+```
 ### **Usage**
 ```
 usage: mhcvision-rf.py [options] input_file.csv -o/--output output_file.csv
@@ -40,10 +45,4 @@ options:
 -i, --input    REQUIRED: specify the input filename, the input file must be in ".CSV" format (comma-separated values), the column headers must contain 'Peptide', 'IC50'
 -o, --output   Optional: specify the output filename 
 -h, --help     Print the usage information
-```
-
-### **Sample scripts**
-You can use input_sample.csv as the input file
-```
-python mhcvision-rf.py -a HLA-A0201 -t NetMHCpan -i input_sample.csv
 ```
